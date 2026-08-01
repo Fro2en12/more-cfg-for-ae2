@@ -3,6 +3,7 @@ package org.dasien.more_cfg_for_ae2.mixin;
 import appeng.api.parts.IPartItem;
 import appeng.parts.AEBasePart;
 import appeng.parts.misc.InterfacePart;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import org.dasien.more_cfg_for_ae2.compat.ConfigurableInterfaceHost;
 import org.dasien.more_cfg_for_ae2.compat.InterfaceConfigHelper;
@@ -32,12 +33,12 @@ public abstract class InterfacePartPageMixin extends AEBasePart implements Confi
     }
 
     @Inject(method = "writeToNBT", at = @At("RETURN"))
-    private void moreCfgForAe2$savePage(CompoundTag tag, CallbackInfo ci) {
+    private void moreCfgForAe2$savePage(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
         tag.putInt("more_cfg_for_ae2_page", this.moreCfgForAe2$page);
     }
 
     @Inject(method = "readFromNBT", at = @At("RETURN"))
-    private void moreCfgForAe2$loadPage(CompoundTag tag, CallbackInfo ci) {
+    private void moreCfgForAe2$loadPage(CompoundTag tag, HolderLookup.Provider provider, CallbackInfo ci) {
         this.moreCfgForAe2$setPage(tag.getInt("more_cfg_for_ae2_page"));
     }
 }

@@ -13,7 +13,7 @@ public abstract class MERequesterRequestUpdatePacketMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/almostreliable/merequester/requester/abstraction/AbstractRequesterMenu;updateRequesterNumbers(JIJJ)V"),
             index = 2)
-    private long moreCfgForAe2$clampPacketAmount(long amount) {
+    private static long moreCfgForAe2$clampPacketAmount(long amount) {
         return MERequesterConfigHelper.clampRequestAmount(amount);
     }
 
@@ -22,7 +22,7 @@ public abstract class MERequesterRequestUpdatePacketMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/almostreliable/merequester/requester/abstraction/AbstractRequesterMenu;updateRequesterNumbers(JIJJ)V"),
             index = 3)
-    private long moreCfgForAe2$clampPacketBatch(long batch) {
+    private static long moreCfgForAe2$clampPacketBatch(long batch) {
         return MERequesterConfigHelper.clampRequestBatch(batch);
     }
 }

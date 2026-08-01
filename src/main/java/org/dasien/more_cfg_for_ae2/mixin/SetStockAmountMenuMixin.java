@@ -50,7 +50,8 @@ public abstract class SetStockAmountMenuMixin extends AEBaseMenu implements Long
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void moreCfgForAe2$registerLongStockAmountAction(CallbackInfo ci) {
+    private void moreCfgForAe2$registerLongStockAmountAction(int id, Inventory playerInventory, InterfaceLogicHost host,
+            CallbackInfo ci) {
         this.registerClientAction(MORE_CFG_FOR_AE2_ACTION_SET_STOCK_AMOUNT_LONG, Long.class,
                 this::moreCfgForAe2$confirm);
     }
