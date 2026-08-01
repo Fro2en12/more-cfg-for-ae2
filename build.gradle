@@ -147,22 +147,3 @@ tasks.named('jar', Jar).configure {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
-
-// ModDevGradle 2.x 的 dev 运行以 sourceSet 目录提供 mod，不会自动解出 jarJar 库，
-// 导致 runClient 中 PinIn 等库 NoClassDefFoundError（发布 jar 不受影响）。
-// 这里在 legacyClasspath 生成后追加 jarJar 库，仅供开发运行使用。
-tasks.named('writeClientLegacyClasspath').configure {
-    doLast {
-        def cpFile = layout.buildDirectory.file('moddev/clientLegacyClasspath.txt').get().asFile
-        if (cpFile.exists()) {
-            def existing = cpFile.text
-            configurations.jarJar.each { jarFile ->
-                def line = jarFile.absolutePath
-                if (!existing.contains(line)) {
-                    cpFile.append(System.lineSeparator() + line)
-                    existing = cpFile.text
-                }
-            }
-        }
-    }
-}
