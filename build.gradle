@@ -109,6 +109,8 @@ dependencies {
 
     // JEC 拼音搜索（内含 me.towdium.pinin 拼音库）
     implementation 'me.towdium:pinin:1.6.0'
+    // PinIn 为纯库（非 mod），必须打进发布 jar，否则玩家环境打开无限元件选择器会 NoClassDefFoundError
+    jarJar 'me.towdium:pinin:1.6.0'
     compileOnly "curse.maven:just-enough-characters-250702:6679735"
     runtimeOnly "curse.maven:just-enough-characters-250702:6679735"
 
@@ -144,4 +146,23 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+// ModDevGradle 2.x 的 dev 运行以 sourceSet 目录提供 mod，不会自动解出 jarJar 库，
+// 导致 runClient 中 PinIn 等库 NoClassDefFoundError（发布 jar 不受影响）。
+// 这里在 legacyClasspath 生成后追加 jarJar 库，仅供开发运行使用。
+tasks.named('writeClientLegacyClasspath').configure {
+    doLast {
+        def cpFile = layout.buildDirectory.file('moddev/clientLegacyClasspath.txt').get().asFile
+        if (cpFile.exists()) {
+            def existing = cpFile.text
+            configurations.jarJar.each { jarFile ->
+                def line = jarFile.absolutePath
+                if (!existing.contains(line)) {
+                    cpFile.append(System.lineSeparator() + line)
+                    existing = cpFile.text
+                }
+            }
+        }
+    }
 }
