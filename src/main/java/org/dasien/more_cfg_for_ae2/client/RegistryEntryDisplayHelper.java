@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -12,9 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.dasien.more_cfg_for_ae2.compat.AppFluxInfinityCellCompat;
 import org.dasien.more_cfg_for_ae2.compat.AppliedBotanicsInfinityCellCompat;
 import org.dasien.more_cfg_for_ae2.compat.AppliedMekanisticsInfinityCellCompat;
@@ -61,7 +61,7 @@ public final class RegistryEntryDisplayHelper {
         if (location == null) {
             return Items.BARRIER;
         }
-        Item item = ForgeRegistries.ITEMS.getValue(location);
+        Item item = BuiltInRegistries.ITEM.get(location);
         return item != null && item != Items.AIR ? item : Items.BARRIER;
     }
 
@@ -70,7 +70,7 @@ public final class RegistryEntryDisplayHelper {
         if (location == null) {
             return Fluids.EMPTY;
         }
-        Fluid fluid = ForgeRegistries.FLUIDS.getValue(location);
+        Fluid fluid = BuiltInRegistries.FLUID.get(location);
         return fluid != null ? fluid : Fluids.EMPTY;
     }
 
@@ -232,7 +232,7 @@ public final class RegistryEntryDisplayHelper {
         }
 
         static String of(ItemStack stack) {
-            ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+            ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             return id != null ? id.toString() : "minecraft:barrier";
         }
     }

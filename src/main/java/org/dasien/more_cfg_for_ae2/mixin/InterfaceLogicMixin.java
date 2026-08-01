@@ -140,9 +140,13 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
         ConfigInventory oldConfig = this.config;
         ConfigInventory oldStorage = this.storage;
 
-        ConfigInventory newConfig = ConfigInventory.configStacks(null, configuredSlotCount,
-                this::moreCfgForAe2$onConfigRowChanged, true);
-        ConfigInventory newStorage = ConfigInventory.storage(configuredSlotCount, this::moreCfgForAe2$onStorageChanged);
+        ConfigInventory newConfig = ConfigInventory.configStacks(configuredSlotCount)
+                .changeListener(this::moreCfgForAe2$onConfigRowChanged)
+                .allowOverstacking(true)
+                .build();
+        ConfigInventory newStorage = ConfigInventory.storage(configuredSlotCount)
+                .changeListener(this::moreCfgForAe2$onStorageChanged)
+                .build();
 
         moreCfgForAe2$copyStacks(oldConfig, newConfig);
         moreCfgForAe2$copyStacks(oldStorage, newStorage);

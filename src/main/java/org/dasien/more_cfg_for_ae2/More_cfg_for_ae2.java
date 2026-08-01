@@ -4,17 +4,16 @@ import com.mojang.logging.LogUtils;
 import dev.toma.configuration.client.ConfigurationClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.dasien.more_cfg_for_ae2.compat.LoadedMods;
 import org.slf4j.Logger;
 
@@ -24,12 +23,9 @@ public class More_cfg_for_ae2 {
     public static final String MODID = "more_cfg_for_ae2";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public More_cfg_for_ae2() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
+    public More_cfg_for_ae2(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
-
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(this::onServerStarting);
 
         boolean exPatternProviderLoaded = LoadedMods.isExPatternProviderLoaded();
         boolean meRequesterLoaded = LoadedMods.isMERequesterLoaded();
@@ -47,28 +43,27 @@ public class More_cfg_for_ae2 {
         } else {
             Config.register();
         }
+
+        // 客户端专属：注册配置屏幕扩展点
+        if (FMLEnvironment.dist.isClient()) {
+            modEventBus.addListener(More_cfg_for_ae2::onClientSetup);
+        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("Loaded configurable AE2 interface limits");
     }
 
-    @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
     }
 
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            ModList.get().getModContainerById(MODID).ifPresent(container -> container.registerExtensionPoint(
-                    ConfigScreenHandler.ConfigScreenFactory.class,
-                    () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, parent) -> {
-                        Screen screen = ConfigurationClient.getConfigScreen(MODID, parent);
-                        return screen != null ? screen : parent;
-                    })));
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
+    private static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ModList.get().getModContainerById(MODID).ifPresent(container -> container.registerExtensionPoint(
+                IConfigScreenFactory.class,
+                (modContainer, parent) -> {
+                    Screen screen = ConfigurationClient.getConfigScreen(MODID, parent);
+                    return screen != null ? screen : parent;
+                })));
+        LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
 }

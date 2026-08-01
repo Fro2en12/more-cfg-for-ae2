@@ -1,6 +1,6 @@
 package org.dasien.more_cfg_for_ae2.compat;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public final class LoadedMods {
     public static final String EX_PATTERN_PROVIDER = "expatternprovider";

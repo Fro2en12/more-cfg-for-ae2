@@ -1,12 +1,12 @@
 package org.dasien.more_cfg_for_ae2.mixin;
 
-import com.almostreliable.merequester.requester.Requests;
+import com.almostreliable.merequester.requester.Request;
 import org.dasien.more_cfg_for_ae2.compat.MERequesterConfigHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(value = Requests.Request.class, remap = false)
+@Mixin(value = Request.class, remap = false)
 public abstract class MERequesterRequestMixin {
     @ModifyVariable(method = "updateAmount", at = @At("HEAD"), argsOnly = true)
     private long moreCfgForAe2$clampRequestAmount(long amount) {

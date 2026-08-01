@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(value = RequestUpdatePacket.class, remap = false)
 public abstract class MERequesterRequestUpdatePacketMixin {
     @ModifyArg(
-            method = "handlePacket(Lcom/almostreliable/merequester/network/RequestUpdatePacket;Lnet/minecraft/server/level/ServerPlayer;)V",
+            method = "handle(Lcom/almostreliable/merequester/network/RequestUpdatePacket;Lnet/neoforged/neoforge/network/handling/IPayloadContext;)V",
             at = @At(value = "INVOKE",
                     target = "Lcom/almostreliable/merequester/requester/abstraction/AbstractRequesterMenu;updateRequesterNumbers(JIJJ)V"),
             index = 2)
@@ -18,7 +18,7 @@ public abstract class MERequesterRequestUpdatePacketMixin {
     }
 
     @ModifyArg(
-            method = "handlePacket(Lcom/almostreliable/merequester/network/RequestUpdatePacket;Lnet/minecraft/server/level/ServerPlayer;)V",
+            method = "handle(Lcom/almostreliable/merequester/network/RequestUpdatePacket;Lnet/neoforged/neoforge/network/handling/IPayloadContext;)V",
             at = @At(value = "INVOKE",
                     target = "Lcom/almostreliable/merequester/requester/abstraction/AbstractRequesterMenu;updateRequesterNumbers(JIJJ)V"),
             index = 3)

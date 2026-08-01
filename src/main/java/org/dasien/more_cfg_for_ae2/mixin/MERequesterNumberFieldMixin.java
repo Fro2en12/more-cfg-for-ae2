@@ -48,7 +48,7 @@ public abstract class MERequesterNumberFieldMixin implements MERequesterNumberFi
         ((EditBox) (Object) this).setMaxLength(32);
     }
 
-    @Inject(method = "setFocused", at = @At("HEAD"), cancellable = true, remap = true)
+    @Inject(method = "setFocused", at = @At("HEAD"), cancellable = true, remap = false)
     private void moreCfgForAe2$openNumberPopup(boolean focused, CallbackInfo ci) {
         if (!focused || !((EditBoxMixin) this).merequester$isEditable()) {
             return;

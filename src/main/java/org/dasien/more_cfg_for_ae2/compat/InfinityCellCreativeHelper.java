@@ -3,9 +3,10 @@ package org.dasien.more_cfg_for_ae2.compat;
 import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
-import com.glodblock.github.extendedae.common.EPPItemAndBlock;
-import com.glodblock.github.extendedae.common.items.InfinityCell;
+import com.glodblock.github.extendedae.common.EAESingletons;
+import com.glodblock.github.extendedae.common.items.ItemInfinityCell;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -13,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.dasien.more_cfg_for_ae2.Config;
 import org.slf4j.Logger;
 
@@ -41,7 +41,7 @@ public final class InfinityCellCreativeHelper {
             return cells.get(0);
         }
 
-        InfinityCell infinityCell = EPPItemAndBlock.INFINITY_CELL;
+        ItemInfinityCell infinityCell = EAESingletons.INFINITY_WATER_CELL;
         return infinityCell != null ? new ItemStack(infinityCell) : ItemStack.EMPTY;
     }
 
@@ -50,43 +50,14 @@ public final class InfinityCellCreativeHelper {
         if (!(config instanceof Config.WithExPatternProvider eppConfig)) {
             return List.of();
         }
-        InfinityCell infinityCell = EPPItemAndBlock.INFINITY_CELL;
+        // EPP 1.21：无限单元格（水/圆石）通过构造器绑定固定 AEKey，无法再按配置动态创建
+        // 自定义记录单元格。此处返回 EPP 内置无限单元格作为可见占位，避免创造标签页为空。
+        ItemInfinityCell infinityCell = EAESingletons.INFINITY_WATER_CELL;
         if (infinityCell == null) {
             return List.of();
         }
 
-        List<ItemStack> cells = new ArrayList<>();
-        List<String> invalidEntries = new ArrayList<>();
-
-        for (String entry : uniqueIds(eppConfig.infinityCells)) {
-            InfinityCellRegistryTarget target = InfinityCellRegistryTarget.fromEntry(entry);
-            String id = InfinityCellRegistryTarget.registryId(entry);
-            if (target == InfinityCellRegistryTarget.ITEM) {
-                Optional<Item> item = resolveItem(id);
-                if (item.isPresent()) {
-                    cells.add(infinityCell.getRecordCell(AEItemKey.of(item.get())));
-                } else {
-                    invalidEntries.add(entry);
-                }
-            } else if (target == InfinityCellRegistryTarget.FLUID) {
-                Optional<Fluid> fluid = resolveFluid(id);
-                if (fluid.isPresent()) {
-                    cells.add(infinityCell.getRecordCell(AEFluidKey.of(fluid.get())));
-                } else {
-                    invalidEntries.add(entry);
-                }
-            } else {
-                Optional<AEKey> key = resolveCompatKey(target, id);
-                if (key.isPresent()) {
-                    cells.add(infinityCell.getRecordCell(key.get()));
-                } else {
-                    invalidEntries.add(entry);
-                }
-            }
-        }
-
-        logInvalidEntries(invalidEntries);
-        return cells;
+        return List.of(new ItemStack(infinityCell));
     }
 
     private static Set<String> uniqueIds(String[] configuredIds) {
@@ -108,7 +79,7 @@ public final class InfinityCellCreativeHelper {
             return Optional.empty();
         }
 
-        Item item = ForgeRegistries.ITEMS.getValue(location);
+        Item item = BuiltInRegistries.ITEM.get(location);
         return item != null && item != Items.AIR ? Optional.of(item) : Optional.empty();
     }
 
@@ -118,7 +89,7 @@ public final class InfinityCellCreativeHelper {
             return Optional.empty();
         }
 
-        Fluid fluid = ForgeRegistries.FLUIDS.getValue(location);
+        Fluid fluid = BuiltInRegistries.FLUID.get(location);
         return fluid != null && fluid != Fluids.EMPTY ? Optional.of(fluid) : Optional.empty();
     }
 

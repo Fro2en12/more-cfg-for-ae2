@@ -103,7 +103,7 @@ public class InfinityCellRegistrySelectionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, TITLE_Y, 0xFFFFFF);
         super.render(graphics, mouseX, mouseY, partialTick);
 
@@ -150,12 +150,12 @@ public class InfinityCellRegistrySelectionScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
         int maxPage = maxPage();
         if (maxPage <= 0) {
             return false;
         }
-        changePage(delta > 0 ? -1 : 1);
+        changePage(vertical > 0 ? -1 : 1);
         return true;
     }
 

@@ -1,6 +1,6 @@
 package org.dasien.more_cfg_for_ae2.mixin;
 
-import appeng.blockentity.grid.AENetworkBlockEntity;
+import appeng.blockentity.grid.AENetworkedBlockEntity;
 import appeng.blockentity.misc.InterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = InterfaceBlockEntity.class, remap = false)
-public abstract class InterfaceBlockEntityPageMixin extends AENetworkBlockEntity implements ConfigurableInterfaceHost {
+public abstract class InterfaceBlockEntityPageMixin extends AENetworkedBlockEntity implements ConfigurableInterfaceHost {
     @Unique
     private int moreCfgForAe2$page;
 
@@ -33,7 +33,7 @@ public abstract class InterfaceBlockEntityPageMixin extends AENetworkBlockEntity
         return InterfaceConfigHelper.clampPage(this, this.moreCfgForAe2$page);
     }
 
-    @Inject(method = "saveAdditional", at = @At("RETURN"), remap = true)
+    @Inject(method = "saveAdditional", at = @At("RETURN"), remap = false)
     private void moreCfgForAe2$savePage(CompoundTag tag, CallbackInfo ci) {
         tag.putInt("more_cfg_for_ae2_page", this.moreCfgForAe2$page);
     }

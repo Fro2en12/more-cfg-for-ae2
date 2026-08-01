@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "org.dasien.more_cfg_for_ae2.mixin",
   "plugin": "org.dasien.more_cfg_for_ae2.compat.MoreCfgMixinPlugin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "more_cfg_for_ae2.refmap.json",
   "mixins": [
     "ConfigInventoryMixin",
