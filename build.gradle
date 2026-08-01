@@ -107,10 +107,10 @@ dependencies {
     compileOnly "mezz.jei:jei-1.21.1-neoforge:19.43.0.390"
     runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.43.0.390"
 
-    // JEC 拼音搜索（内含 me.towdium.pinin 拼音库）
-    implementation 'me.towdium:pinin:1.6.0'
-    // PinIn 为纯库（非 mod），必须打进发布 jar，否则玩家环境打开无限元件选择器会 NoClassDefFoundError
-    jarJar 'me.towdium:pinin:1.6.0'
+    // PinIn 拼音库由 JEC 以 jarjar 形式提供（本 mod 通过反射调用，见 JeCharactersCompat）。
+    // 这里仅编译期使用本地 libs jar，运行时不重复打包，避免与 JEC 自带 PinIn 的
+    // JPMS 模块重复导出冲突（Modules pinin and PinIn export package ... to module pinyin4j）。
+    compileOnly 'me.towdium:pinin:1.6.0'
     compileOnly "curse.maven:just-enough-characters-250702:6679735"
     runtimeOnly "curse.maven:just-enough-characters-250702:6679735"
 
