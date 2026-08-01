@@ -14,6 +14,7 @@ public final class MoreCfgMixinPlugin implements IMixinConfigPlugin {
             "org.dasien.more_cfg_for_ae2.mixin.CUpdatePageMixin",
             "org.dasien.more_cfg_for_ae2.mixin.GuiExInterfaceMixin",
             "org.dasien.more_cfg_for_ae2.mixin.InfinityCellMixin",
+            "org.dasien.more_cfg_for_ae2.mixin.InfinityCellInventoryMixin",
             "org.dasien.more_cfg_for_ae2.mixin.PartOversizeConfigInventoryMixin",
             "org.dasien.more_cfg_for_ae2.mixin.PartOversizeInterfaceMixin",
             "org.dasien.more_cfg_for_ae2.mixin.TileOversizeConfigInventoryMixin",

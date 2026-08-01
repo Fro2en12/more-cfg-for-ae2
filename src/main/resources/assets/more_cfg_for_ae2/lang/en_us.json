@@ -1,4 +1,5 @@
 {
+  "item.more_cfg_for_ae2.infinity_cell": "Configured Infinity Cell",
   "config.more_cfg_for_ae2.title": "More CFG for AE2",
   "config.more_cfg_for_ae2.option.meInterfaceSlotLimit": "ME Interface slot limit",
   "config.more_cfg_for_ae2.option.meInterfacePages": "ME Interface pages",

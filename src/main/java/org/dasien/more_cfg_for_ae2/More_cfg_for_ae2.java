@@ -24,6 +24,8 @@ public class More_cfg_for_ae2 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public More_cfg_for_ae2(IEventBus modEventBus) {
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
+
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.addListener(this::onServerStarting);
 

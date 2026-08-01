@@ -9,6 +9,7 @@
     "ConfigInventoryMixin",
     "ContainerExInterfaceMixin",
     "CUpdatePageMixin",
+    "InfinityCellInventoryMixin",
     "InterfaceBlockEntityPageMixin",
     "InfinityCellMixin",
     "InterfaceLogicMixin",

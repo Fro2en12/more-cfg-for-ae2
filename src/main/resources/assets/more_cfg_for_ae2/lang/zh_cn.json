@@ -1,4 +1,5 @@
 {
+  "item.more_cfg_for_ae2.infinity_cell": "自定义无限元件",
   "config.more_cfg_for_ae2.title": "AE2 配置增强",
   "config.more_cfg_for_ae2.option.meInterfaceSlotLimit": "ME 接口每槽上限",
   "config.more_cfg_for_ae2.option.meInterfacePages": "ME 接口页数",

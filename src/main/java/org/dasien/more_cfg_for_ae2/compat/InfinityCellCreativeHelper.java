@@ -15,6 +15,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.dasien.more_cfg_for_ae2.Config;
+import org.dasien.more_cfg_for_ae2.ModDataComponents;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -50,14 +51,53 @@ public final class InfinityCellCreativeHelper {
         if (!(config instanceof Config.WithExPatternProvider eppConfig)) {
             return List.of();
         }
-        // EPP 1.21：无限单元格（水/圆石）通过构造器绑定固定 AEKey，无法再按配置动态创建
-        // 自定义记录单元格。此处返回 EPP 内置无限单元格作为可见占位，避免创造标签页为空。
         ItemInfinityCell infinityCell = EAESingletons.INFINITY_WATER_CELL;
         if (infinityCell == null) {
             return List.of();
         }
 
-        return List.of(new ItemStack(infinityCell));
+        // EPP 1.21 移除了 getRecordCell(AEKey)：单元格改为构造器绑定固定 AEKey。
+        // 此处以已注册的水单元格为载体，把目标记录写入自定义组件 cell_record，
+        // 由 InfinityCellInventoryMixin 在构造时优先读取，恢复动态自定义无限单元格。
+        List<ItemStack> cells = new ArrayList<>();
+        List<String> invalidEntries = new ArrayList<>();
+
+        for (String entry : uniqueIds(eppConfig.infinityCells)) {
+            InfinityCellRegistryTarget target = InfinityCellRegistryTarget.fromEntry(entry);
+            String id = InfinityCellRegistryTarget.registryId(entry);
+            if (target == InfinityCellRegistryTarget.ITEM) {
+                Optional<Item> item = resolveItem(id);
+                if (item.isPresent()) {
+                    cells.add(recordCell(infinityCell, AEItemKey.of(item.get())));
+                } else {
+                    invalidEntries.add(entry);
+                }
+            } else if (target == InfinityCellRegistryTarget.FLUID) {
+                Optional<Fluid> fluid = resolveFluid(id);
+                if (fluid.isPresent()) {
+                    cells.add(recordCell(infinityCell, AEFluidKey.of(fluid.get())));
+                } else {
+                    invalidEntries.add(entry);
+                }
+            } else {
+                Optional<AEKey> key = resolveCompatKey(target, id);
+                if (key.isPresent()) {
+                    cells.add(recordCell(infinityCell, key.get()));
+                } else {
+                    invalidEntries.add(entry);
+                }
+            }
+        }
+
+        logInvalidEntries(invalidEntries);
+        return cells;
+    }
+
+    /** 创建记录指定 AEKey 的自定义无限单元格（记录写入 cell_record 组件） */
+    private static ItemStack recordCell(ItemInfinityCell cell, AEKey key) {
+        ItemStack stack = new ItemStack(cell);
+        stack.set(ModDataComponents.CELL_RECORD.get(), key);
+        return stack;
     }
 
     private static Set<String> uniqueIds(String[] configuredIds) {
