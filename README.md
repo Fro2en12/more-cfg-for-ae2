@@ -1,6 +1,16 @@
 # More CFG for AE2
 
-More CFG for AE2 是一个 Forge 1.20.1 小型兼容与配置增强模组，主要用于把 Applied Energistics 2 及部分联动模组里写死或不方便调整的数值暴露到配置文件和配置界面中。
+> **Fork 来源**：本仓库 fork 自 [Dasien-loop/more-cfg-for-ae2](https://github.com/Dasien-loop/more-cfg-for-ae2)，
+> 由 [Fro2en12](https://github.com/Fro2en12) 维护的 1.21.1 迁移版。
+
+More CFG for AE2 是一个 NeoForge 1.21.1 小型兼容与配置增强模组，主要用于把 Applied Energistics 2 及部分联动模组里写死或不方便调整的数值暴露到配置文件和配置界面中。
+
+> **迁移说明**：本分支（`port/1.21.1`）已将原 Forge 1.20.1 代码迁移至 NeoForge 21.1.247，
+> 构建与运行需要 JDK 21。受上游 API 变化影响：
+> - Ex Pattern Provider 1.21（ExtendedAE 2.2.29）无限单元格改为构造器绑定固定 AEKey，
+>   「自定义无限单元格」配置项不再生成动态记录单元格（创造标签页回退为内置水单元格）。
+> - Applied Botanics（appbot）依赖未发布的 Botania 454-SNAPSHOT，相关兼容需自行提供运行时环境。
+> - Ars Energistique（arseng）需 Ars Nouveau 生态，相关兼容需自行提供运行时环境。
 
 当前重点支持 AE2 接口容量、Ex Pattern Provider 无限元件与 ME Requester 请求数量上限。
 
@@ -18,11 +28,11 @@ More CFG for AE2 是一个 Forge 1.20.1 小型兼容与配置增强模组，主�
 
 ## 环境
 
-- Minecraft: `1.20.1`
-- Forge: `47.x`
-- Java: `17`
-- AE2: `15.4.1+`
-- Configuration: `2.2.0+`
+- Minecraft: `1.21.1`
+- NeoForge: `21.1.x`
+- Java: `21`
+- AE2: `19.x`
+- Configuration: `3.1.x`
 
 可选联动：
 

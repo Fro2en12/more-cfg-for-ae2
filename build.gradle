@@ -82,16 +82,26 @@ dependencies {
     // 核心依赖
     implementation "maven.modrinth:ae2:19.2.17"
     implementation "maven.modrinth:guideme:21.1.17"
-    implementation "maven.modrinth:configuration:3.1.1"
+    // configuration 3.1.1 在 Modrinth 有 Forge/NeoForge 双文件，用版本 ID 锁定 NeoForge 版
+    implementation "maven.modrinth:configuration:6Mztfq1u"
     implementation "maven.modrinth:extended-ae:1.21-2.2.29-neoforge"
     implementation "maven.modrinth:merequester:1.21.1-1.4.3+neoforge"
 
     // 可选兼容（编译必需，运行时按 LoadedMods 检测）
     implementation "maven.modrinth:appflux:1.21-2.1.4-neoforge"
-    implementation "maven.modrinth:applied-botanics:1.6.0-alpha.3"
     implementation "maven.modrinth:applied-mekanistics:1.6.3"
     implementation "maven.modrinth:mekanism:10.7.19.85"
-    implementation "maven.modrinth:ars-energistique:2.1.1-beta"
+
+    // Applied Botanics 1.21.1 依赖 Botania 454-SNAPSHOT（尚未正式发布），
+    // 编译期提供 ManaKey API，运行时由用户按需自备（appbot + botania）
+    compileOnly "maven.modrinth:applied-botanics:1.6.0-alpha.3"
+
+    // Ars Energistique 2.1.1-beta 需 Ars Nouveau + curios + geckolib 整套运行时，
+    // 作为可选兼容仅编译期提供 SourceKey API，运行时由用户按需自备（arseng + ars_nouveau）
+    compileOnly "maven.modrinth:ars-energistique:2.1.1-beta"
+
+    // ExtendedAE / AppFlux 的运行时依赖（Modrinth Maven 不提供传递依赖）
+    runtimeOnly "maven.modrinth:glodium:1.21-2.2-neoforge"
 
     // JEI（编译 API + 运行）
     compileOnly "mezz.jei:jei-1.21.1-neoforge:19.43.0.390"
