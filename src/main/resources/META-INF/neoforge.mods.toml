@@ -56,7 +56,7 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "jecharacters"
 type = "optional"
-versionRange = "[4.7.0,)"
+versionRange = "[4.5.0,)"
 ordering = "AFTER"
 side = "CLIENT"
 
