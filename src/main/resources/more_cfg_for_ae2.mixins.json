@@ -15,6 +15,7 @@
     "InterfaceLogicMixin",
     "InterfaceMenuMixin",
     "InterfacePartPageMixin",
+    "MultiCraftingTrackerMixin",
     "MERequesterRequestUpdatePacketMixin",
     "MERequesterRequestMixin",
     "PartOversizeConfigInventoryMixin",

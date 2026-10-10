@@ -17,10 +17,13 @@ import appeng.helpers.InterfaceLogic;
 import appeng.helpers.InterfaceLogicHost;
 import appeng.helpers.MultiCraftingTracker;
 import appeng.util.ConfigInventory;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import net.minecraft.world.item.Item;
 import org.dasien.more_cfg_for_ae2.compat.ConfigurableInterfaceLogic;
 import org.dasien.more_cfg_for_ae2.compat.InterfaceConfigHelper;
+import org.dasien.more_cfg_for_ae2.compat.ResizableCraftingTracker;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,13 +36,15 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 @Mixin(value = InterfaceLogic.class, remap = false)
 public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic {
     @Unique
-    private static final Method MORE_CFG_FOR_AE2_IS_BUSY = moreCfgForAe2$findIsBusyMethod();
+    private static final Logger MORE_CFG_FOR_AE2_LOGGER = LogUtils.getLogger();
+
+    @Unique
+    private static final Field MORE_CFG_FOR_AE2_LOCAL_INV_HANDLER = moreCfgForAe2$findLocalInvHandlerField();
 
     @Shadow
     @Final
@@ -62,7 +67,6 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
 
     @Shadow
     @Final
-    @Mutable
     private MultiCraftingTracker craftingTracker;
 
     @Shadow
@@ -132,7 +136,23 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
     @Override
     public void moreCfgForAe2$ensureConfiguredSlotCount() {
         int configuredSlotCount = InterfaceConfigHelper.slotCountForHost(this.host, this.config.size());
-        if (configuredSlotCount == this.config.size() && configuredSlotCount == this.storage.size()) {
+        ResizableCraftingTracker tracker = (ResizableCraftingTracker) this.craftingTracker;
+        if (configuredSlotCount == this.config.size()
+                && configuredSlotCount == this.storage.size()
+                && configuredSlotCount == this.plannedWork.length
+                && configuredSlotCount == tracker.moreCfgForAe2$getSlotCount()) {
+            InterfaceConfigHelper.applySlotLimit((InterfaceLogic) (Object) this, this.host);
+            return;
+        }
+
+        int currentSlotCount = Math.max(
+                Math.max(this.config.size(), this.storage.size()),
+                Math.max(this.plannedWork.length, tracker.moreCfgForAe2$getSlotCount()));
+        if (configuredSlotCount < currentSlotCount
+                && !this.moreCfgForAe2$canShrinkTo(configuredSlotCount, tracker)) {
+            MORE_CFG_FOR_AE2_LOGGER.warn(
+                    "拒绝将 AE2 接口从 {} 个槽位缩减为 {} 个：被移除槽位仍有配置、库存或活动合成任务",
+                    currentSlotCount, configuredSlotCount);
             InterfaceConfigHelper.applySlotLimit((InterfaceLogic) (Object) this, this.host);
             return;
         }
@@ -151,14 +171,56 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
         moreCfgForAe2$copyStacks(oldConfig, newConfig);
         moreCfgForAe2$copyStacks(oldStorage, newStorage);
 
+        if (!this.moreCfgForAe2$resetLocalInventoryHandler()) {
+            MORE_CFG_FOR_AE2_LOGGER.error(
+                    "无法重置 AE2 接口的 localInvHandler，库存维持 {} 个槽位",
+                    currentSlotCount);
+            return;
+        }
+
+        tracker.moreCfgForAe2$resize(configuredSlotCount);
+
         this.config = newConfig;
         this.storage = newStorage;
         this.plannedWork = new GenericStack[configuredSlotCount];
-        this.craftingTracker = new MultiCraftingTracker((InterfaceLogic) (Object) this, configuredSlotCount);
 
         InterfaceConfigHelper.applySlotLimit((InterfaceLogic) (Object) this, this.host);
         this.moreCfgForAe2$readConfig();
         this.host.saveChanges();
+    }
+
+    @Unique
+    private boolean moreCfgForAe2$canShrinkTo(int slotCount, ResizableCraftingTracker tracker) {
+        for (int slot = slotCount; slot < this.config.size(); slot++) {
+            if (this.config.getStack(slot) != null) {
+                return false;
+            }
+        }
+        for (int slot = slotCount; slot < this.storage.size(); slot++) {
+            if (this.storage.getStack(slot) != null) {
+                return false;
+            }
+        }
+
+        for (int slot = slotCount; slot < tracker.moreCfgForAe2$getSlotCount(); slot++) {
+            if (tracker.moreCfgForAe2$isBusy(slot)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Unique
+    private boolean moreCfgForAe2$resetLocalInventoryHandler() {
+        if (MORE_CFG_FOR_AE2_LOCAL_INV_HANDLER == null) {
+            return false;
+        }
+        try {
+            MORE_CFG_FOR_AE2_LOCAL_INV_HANDLER.set(this, null);
+            return true;
+        } catch (IllegalAccessException e) {
+            return false;
+        }
     }
 
     private static void moreCfgForAe2$copyStacks(ConfigInventory source, ConfigInventory target) {
@@ -205,7 +267,7 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
             return false;
         }
 
-        if (moreCfgForAe2$isBusy(this.craftingTracker, slot)) {
+        if (((ResizableCraftingTracker) this.craftingTracker).moreCfgForAe2$isBusy(slot)) {
             return this.moreCfgForAe2$handleCrafting(slot, what, amount);
         }
 
@@ -236,25 +298,13 @@ public abstract class InterfaceLogicMixin implements ConfigurableInterfaceLogic 
     }
 
     @Unique
-    private static Method moreCfgForAe2$findIsBusyMethod() {
+    private static Field moreCfgForAe2$findLocalInvHandlerField() {
         try {
-            Method method = MultiCraftingTracker.class.getDeclaredMethod("isBusy", int.class);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException e) {
+            Field field = InterfaceLogic.class.getDeclaredField("localInvHandler");
+            field.setAccessible(true);
+            return field;
+        } catch (ReflectiveOperationException | RuntimeException e) {
             return null;
-        }
-    }
-
-    @Unique
-    private static boolean moreCfgForAe2$isBusy(MultiCraftingTracker tracker, int slot) {
-        if (MORE_CFG_FOR_AE2_IS_BUSY == null) {
-            return false;
-        }
-        try {
-            return (Boolean) MORE_CFG_FOR_AE2_IS_BUSY.invoke(tracker, slot);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return false;
         }
     }
 }
